@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rizal Game Reviewer - 50 Items</title>
+<meta name="description" content="Game-based reviewer for History and Life of Rizal. 50 items for LET and board exam.">
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{margin:0;background:#FFF8E1;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:15px}
+.card{background:white;width:100%;max-width:520px;border-radius:18px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.15);text-align:center}
+h1{color:#8D6E00;margin:5px 0;font-size:24px}
+p{color:#555}
+.badge{background:#FFD54F;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:bold;display:inline-block}
+.btn{background:#FFC107;border:none;padding:13px 20px;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;width:100%;margin-top:10px}
+.btn:hover{background:#FFB300}
+.opt{background:#FFF3CD;border:2px solid #FFE082;padding:12px;border-radius:12px;margin:8px 0;cursor:pointer;text-align:left;font-size:15px}
+.opt:hover{background:#FFE082}
+.opt.correct{background:#C8E6C9;border-color:#4CAF50}
+.opt.wrong{background:#FFCDD2;border-color:#F44336}
+#progress{height:10px;background:#eee;border-radius:10px;overflow:hidden;margin:15px 0}
+#bar{height:100%;background:#FFC107;width:0%;transition:.3s}
+.top{display:flex;justify-content:space-between;font-weight:bold;font-size:14px}
+.hidden{display:none}
+.score{font-size:55px}
+.small{font-size:13px;color:#888}
+</style>
+</head>
+<body>
+<div class="card" id="startScreen">
+  <div class="badge">🇵🇭 HISTORY AND LIFE OF RIZAL</div>
+  <h1>🎮 Rizal Game Reviewer</h1>
+  <p><b>50 Questions • Game Mode</b><br>Para sa LET, Board Exam at School Quiz</p>
+  <p>✅ +10 points pag tama<br>❌ 0 pag mali<br>🏆 Perfect Score: 500</p>
+  <button class="btn" onclick="startGame()">▶ START GAME</button>
+  <p class="small">Made for Baguio Students • Free Game-Based Reviewer</p>
+</div>
+
+<div class="card hidden" id="gameScreen">
+  <div class="top"><span id="qCount">Q 1/50</span><span>⭐ Score: <span id="score">0</span></span></div>
+  <div id="progress"><div id="bar"></div></div>
+  <h2 id="question" style="font-size:19px;text-align:left">Question here</h2>
+  <div id="options"></div>
+  <p id="feedback" style="font-weight:bold"></p>
+  <button class="btn hidden" id="nextBtn" onclick="nextQ()">NEXT ➡</button>
+</div>
+
+<div class="card hidden" id="endScreen">
+  <div class="badge">GAME OVER</div>
+  <div class="score" id="finalScore">0</div>
+  <h2 id="message">Good Job!</h2>
+  <p id="finalDetail"></p>
+  <button class="btn" onclick="startGame()">🔄 PLAY AGAIN</button>
+  <button class="btn" style="background:#E0E0E0" onclick="showAnswers()">📚 REVIEW ANSWERS</button>
+  <div id="answerList" style="text-align:left;margin-top:15px;font-size:14px"></div>
+</div>
+
+<script>
+const questions=[
+{q:"Kailan ipinanganak si Dr. Jose Rizal?",a:["June 19, 1861","June 19, 1862","December 30, 1896","June 12, 1898"],c:0},
+{q:"Saan ipinanganak si Rizal?",a:["Calamba, Laguna","Manila","Dapitan","Baguio"],c:0},
+{q:"Ano ang buong pangalan ni Rizal?",a:["Jose Protacio Rizal Mercado y Alonso Realonda","Jose Rizal Mercado","Jose P. Rizal","Jose Alonso Realonda"],c:0},
+{q:"Sino ang ina ni Rizal?",a:["Teodora Alonso Realonda","Narcisa Rizal","Saturnina Rizal","Trinidad Rizal"],c:0},
+{q:"Sino ang ama ni Rizal?",a:["Francisco Mercado","Paciano Rizal","Ferdinand Blumentritt","Andres Bonifacio"],c:0},
+{q:"Ano ang unang nobela na isinulat ni Rizal?",a:["Noli Me Tangere","El Filibusterismo","Mi Ultimo Adios","Sa Aking Mga Kabata"],c:0},
+{q:"Saan unang nailathala ang Noli Me Tangere?",a:["Berlin, Germany","Madrid, Spain","Manila","Paris"],c:0},
+{q:"Ano ang ibig sabihin ng Noli Me Tangere?",a:["Huwag Mo Akong Salingin / Touch Me Not","Ang Pagtataksil","Ang Paghihimagsik","Ang Huling Paalam"],c:0},
+{q:"Ano ang pangalawang nobela ni Rizal?",a:["El Filibusterismo","Noli Me Tangere","La Solidaridad","Mi Ultimo Adios"],c:0},
+{q:"Sino ang kasintahan ni Rizal sa Dapitan?",a:["Josephine Bracken","Leonor Rivera","Segunda Katigbak","Consuelo Ortiga"],c:0},
+{q:"Saan ipinatapon si Rizal noong 1892?",a:["Dapitan, Zamboanga","Cebu","Baguio","Hong Kong"],c:0},
+{q:"Ano ang itinatag ni Rizal sa Dapitan?",a:["La Liga Filipina","Katipunan","Propaganda Movement","La Solidaridad"],c:0},
+{q:"Kailan itinatag ang La Liga Filipina?",a:["July 3, 1892","June 12, 1898","December 30, 1896","July 7, 1892"],c:0},
+{q:"Sino ang matalik na kaibigan ni Rizal na taga-Austria?",a:["Ferdinand Blumentritt","Antonio Luna","Marcelo H. del Pilar","Graciano Lopez Jaena"],c:0},
+{q:"Ano ang huling tula na isinulat ni Rizal bago siya barilin?",a:["Mi Ultimo Adios","Sa Aking Mga Kabata","El Canto del Viajero","A La Juventud Filipina"],c:0},
+{q:"Kailan binaril si Rizal sa Bagumbayan?",a:["December 30, 1896","June 19, 1861","December 30, 1898","June 12, 1898"],c:0},
+{q:"Saan binaril si Rizal?",a:["Bagumbayan (Luneta), Manila","Fort Santiago","Dapitan","Calamba"],c:0},
+{q:"Ano ang pen name ni Rizal sa La Solidaridad?",a:["Laong Laan at Dimasalang","Plaridel","Solidaridad","Taga-Ilog"],c:0},
+{q:"Ilang taon si Rizal nang siya ay mamatay?",a:["35 years old","30 years old","40 years old","25 years old"],c:0},
+{q:"Ano ang titulo ni Rizal?",a:["Pambansang Bayani / National Hero","Unang Pangulo","Ama ng Katipunan","Ama ng Rebolusyon"],c:0},
+{q:"Sino ang panganay na kapatid ni Rizal?",a:["Saturnina Rizal","Narcisa Rizal","Paciano Rizal","Trinidad Rizal"],c:0},
+{q:"Sino ang kuya ni Rizal na tumulong sa kanya mag-aral?",a:["Paciano Rizal","Antonio Rizal","Francisco Rizal","Jose Rizal"],c:0},
+{q:"Saan nag-aral si Rizal ng elementarya?",a:["Biñan, Laguna","Ateneo de Manila","UST","Madrid"],c:0},
+{q:"Sino ang unang guro ni Rizal?",a:["Justiniano Aquino Cruz","Teodora Alonso","Francisco Mercado","Leon Monroy"],c:0},
+{q:"Saan nag-aral si Rizal ng high school?",a:["Ateneo Municipal de Manila","University of Santo Tomas","San Juan de Letran","Colegio de San Ildefonso"],c:0},
+{q:"Ano ang natapos ni Rizal sa Ateneo?",a:["Bachelor of Arts, Sobresaliente","Medicine","Law","Engineering"],c:0},
+{q:"Saan nag-aral si Rizal ng Medicine?",a:["University of Santo Tomas at Universidad Central de Madrid","Ateneo","Harvard","Oxford"],c:0},
+{q:"Saan nag-aral si Rizal ng Ophthalmology?",a:["Paris at Heidelberg, Germany","London","New York","Tokyo"],c:0},
+{q:"Sino ang unang pag-ibig ni Rizal?",a:["Segunda Katigbak","Leonor Rivera","Josephine Bracken","Consuelo Ortiga"],c:0},
+{q:"Sino ang itinuturing na true love ni Rizal?",a:["Leonor Rivera","Segunda Katigbak","Josephine Bracken","O-Sei-San"],c:0},
+{q:"Sino ang Japanese na naging kasintahan ni Rizal?",a:["O-Sei-San (Seiko Usui)","Josephine Bracken","Leonor Rivera","Consuelo Ortiga"],c:0},
+{q:"Ano ang tawag sa kilusan na kinabibilangan ni Rizal sa Europa?",a:["Propaganda Movement","Katipunan","La Liga Filipina","Rebolusyon"],c:0},
+{q:"Ano ang pahayagan ng Propaganda Movement?",a:["La Solidaridad","La Liga Filipina","El Filibusterismo","Noli Me Tangere"],c:0},
+{q:"Sino ang sumulat ng El Filibusterismo dedication para sa GomBurZa?",a:["Jose Rizal","Marcelo H. del Pilar","Graciano Lopez Jaena","Andres Bonifacio"],c:0},
+{q:"Sino-sino ang GomBurZa?",a:["Gomez, Burgos, Zamora","Gomez, Burgos, Zaragoza","Gomez, Bonifacio, Zamora","Gomez, Burgos, Zaide"],c:0},
+{q:"Kailan binitay ang GomBurZa?",a:["February 17, 1872","December 30, 1896","June 12, 1898","July 3, 1892"],c:0},
+{q:"Ano ang pangunahing tauhan sa Noli Me Tangere?",a:["Crisostomo Ibarra","Simoun","Elias","Padre Damaso"],c:0},
+{q:"Sino ang kasintahan ni Crisostomo Ibarra sa Noli?",a:["Maria Clara","Sisa","Paulita Gomez","Juli"],c:0},
+{q:"Sino ang kontrabida na pari sa Noli Me Tangere?",a:["Padre Damaso","Padre Salvi","Padre Sibyla","Padre Camorra"],c:0},
+{q:"Sino ang pangunahing tauhan sa El Filibusterismo?",a:["Simoun (Crisostomo Ibarra)","Elias","Basilio","Isagani"],c:0},
+{q:"Sino ang ina ni Basilio at Crispin sa Noli?",a:["Sisa","Maria Clara","Trinidad","Narcisa"],c:0},
+{q:"Ano ang nangyari kay Crispin sa Noli?",a:["Pinahirapan at namatay sa kumbento","Naging pari","Umalis papuntang Europa","Naging mayaman"],c:0},
+{q:"Ano ang ibig sabihin ng El Filibusterismo?",a:["Ang Paghahari ng Kasakiman / The Reign of Greed","Ang Paghihimagsik","Ang Huling Paalam","Ang Pagtataksil"],c:0},
+{q:"Saan nailathala ang El Filibusterismo?",a:["Ghent, Belgium","Berlin, Germany","Madrid, Spain","Manila"],c:0},
+{q:"Ano ang taon na nailathala ang El Filibusterismo?",a:["1891","1887","1896","1892"],c:0},
+{q:"Ano ang taon na nailathala ang Noli Me Tangere?",a:["1887","1891","1896","1892"],c:0},
+{q:"Sino ang nagtago kay Rizal sa Fort Santiago bago siya barilin?",a:["Siya ay ikinulong sa Fort Santiago","Siya ay nasa Dapitan pa","Siya ay nasa Europa","Siya ay nasa Calamba"],c:0},
+{q:"Ano ang huling salita na sinabi ni Rizal bago barilin?",a:["Consummatum Est (It is finished)","Viva Filipinas","Mi Ultimo Adios","Mabuhay ang Pilipinas"],c:0},
+{q:"Ano ang batas na nag-uutos na pag-aralan ang buhay ni Rizal?",a:["Rizal Law / Republic Act 1425","RA 7722","RA 1426","RA 1424"],c:0},
+{q:"Sino ang nagsulong ng Rizal Law?",a:["Senator Claro M. Recto","Senator Jose P. Laurel","President Magsaysay","Senator Aquino"],c:0}
+];
+let current=0, score=0;
+function startGame(){current=0;score=0;document.getElementById('score').innerText=0;document.getElementById('startScreen').classList.add('hidden');document.getElementById('endScreen').classList.add('hidden');document.getElementById('gameScreen').classList.remove('hidden');showQ();}
+function showQ(){let q=questions[current];document.getElementById('qCount').innerText=`Q ${current+1}/${questions.length}`;document.getElementById('bar').style.width=((current)/questions.length*100)+'%';document.getElementById('question').innerText=q.q;document.getElementById('feedback').innerText='';document.getElementById('nextBtn').classList.add('hidden');let box=document.getElementById('options');box.innerHTML='';q.a.forEach((opt,i)=>{let d=document.createElement('div');d.className='opt';d.innerText=String.fromCharCode(65+i)+'. '+opt;d.onclick=()=>check(i,d);box.appendChild(d);});}
+function check(i,el){let q=questions[current];let opts=document.querySelectorAll('.opt');opts.forEach(o=>o.style.pointerEvents='none');if(i===q.c){el.classList.add('correct');score+=10;document.getElementById('score').innerText=score;document.getElementById('feedback').innerText='✅ TAMA! +10 points';}else{el.classList.add('wrong');opts[q.c].classList.add('correct');document.getElementById('feedback').innerText='❌ MALI! Tamang sagot: '+q.a[q.c];}document.getElementById('nextBtn').classList.remove('hidden');}
+function nextQ(){current++;if(current<questions.length){showQ();}else{endGame();}}
+function endGame(){document.getElementById('gameScreen').classList.add('hidden');document.getElementById('endScreen').classList.remove('hidden');document.getElementById('finalScore').innerText=score+'/500';let msg=score>=450?'🏆 PERFECT! Pang-LET passer ka na!':score>=300?'👏 Galing! Konting review pa!':'📚 Review pa more, kaya mo yan!';document.getElementById('message').innerText=msg;document.getElementById('finalDetail').innerText=`Naka ${score} points ka sa ${questions.length} questions.`;document.getElementById('answerList').innerHTML='';}
+function showAnswers(){let html='<h3>Answer Key:</h3>';questions.forEach((q,i)=>{html+=`<p><b>${i+1}. ${q.q}</b><br>✅ ${q.a[q.c]}</p>`;});document.getElementById('answerList').innerHTML=html;}
+</script>
+</body>
+</html>
